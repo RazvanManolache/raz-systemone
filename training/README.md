@@ -160,6 +160,7 @@ soft-CE, Qyvos-style objective on our 3-class head), `calibrate.py`
 - **v9** (bilingual champ): v4 mix + 267k Open-Jev hard pairs (1x).
   MNLI .9385 / .021. Holds our splits (F .964, new best), jumps
   Open-Jev-900 .43 → **.846** — past Qyvos (.831) and the Jev API (.811).
+  Hub: `RazvanManolache/raz-systemone-nli-xsmall-openjev`.
 - **v11** (+99k shreyanbr pairs mapped 1:1): MNLI .9378 / .023. C .917
   (new best, perfect choice) but F/G drop: banking-intent data helps
   choice and dilutes tone. More data ≠ better; domain match matters.

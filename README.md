@@ -152,7 +152,9 @@ Answers (untagged `type` field tells them apart):
 Our finetuned NLI checkpoints ([full results table](training/README.md#holdout-results-master-table)):
 
 - [raz-systemone-nli-xsmall](https://huggingface.co/RazvanManolache/raz-systemone-nli-xsmall)
-  (v5, 283MB) — best balanced; at/near LLM-judge accuracy, CPU-only.
+  (v5, 283MB) — best balanced on our labels; at/near LLM-judge accuracy, CPU-only.
+- [raz-systemone-nli-xsmall-openjev](https://huggingface.co/RazvanManolache/raz-systemone-nli-xsmall-openjev)
+  (v9, 283MB) — bilingual: holds our labels, beats the Jev API on Open-Jev's own test.
 - [raz-systemone-nli-base](https://huggingface.co/RazvanManolache/raz-systemone-nli-base)
   (v7, 738MB) — best on broad queries; near-perfect on the 60-state split.
 
