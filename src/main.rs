@@ -1,4 +1,4 @@
-//! `systemone`: Jev-like typed decisions over local models.
+//! `raz`: Jev-like typed decisions over local models.
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -6,11 +6,11 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Args, Parser, ValueEnum};
 
-use systemone::ollama::OllamaClient;
-use systemone::{AskRequest, Question};
+use raz::ollama::OllamaClient;
+use raz::{AskRequest, Question};
 
 #[derive(Debug, Parser)]
-#[command(name = "systemone", about = "Jev-like typed decisions over local models")]
+#[command(name = "raz", about = "Jev-like typed decisions over local models")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -30,10 +30,10 @@ struct BackendArgs {
     #[arg(long, default_value = "huihui_ai/phi4-abliterated")]
     llm_model: String,
     /// HF model id or local dir (nli scorer).
-    #[arg(long, default_value = systemone::nli::DEFAULT_NLI_MODEL)]
+    #[arg(long, default_value = raz::nli::DEFAULT_NLI_MODEL)]
     nli_model: String,
     /// Jev model id (jev scorer; key from TYPESAFE_API_KEY or .env).
-    #[arg(long, default_value = systemone::jev::DEFAULT_JEV_MODEL)]
+    #[arg(long, default_value = raz::jev::DEFAULT_JEV_MODEL)]
     jev_model: String,
     /// Softmax temperature over cosine scores (embed scorer).
     #[arg(long, default_value = "0.1")]
@@ -140,14 +140,14 @@ async fn main() -> Result<()> {
             scorer,
             backend,
         } => {
-            systemone::server::serve(systemone::server::ServerConfig {
+            raz::server::serve(raz::server::ServerConfig {
                 port,
                 default_scorer: scorer.as_str().to_string(),
                 ollama_url: backend.ollama_url,
                 embed_model: backend.embed_model,
                 llm_model: backend.llm_model,
                 nli_model: backend.nli_model,
-                jev_api_key: systemone::jev::read_api_key().ok(),
+                jev_api_key: raz::jev::read_api_key().ok(),
                 jev_model: backend.jev_model,
             })
             .await
@@ -160,7 +160,7 @@ async fn main() -> Result<()> {
             backend,
         } => {
             let text = std::fs::read_to_string(&data).context("read eval data")?;
-            let cases = systemone::eval::load_cases(&text)?;
+            let cases = raz::eval::load_cases(&text)?;
             let cases: Vec<_> = if limit > 0 {
                 cases.into_iter().take(limit).collect()
             } else {
@@ -168,7 +168,7 @@ async fn main() -> Result<()> {
             };
             anyhow::ensure!(!cases.is_empty(), "no cases in {}", data.display());
             let scorer_impl = EvalScorer::load(scorer, &backend)?;
-            let report = systemone::eval::run(&scorer_impl, &cases).await?;
+            let report = raz::eval::run(&scorer_impl, &cases).await?;
             if let Some(path) = dump {
                 report.write_dump(&path)?;
             }
@@ -180,10 +180,10 @@ async fn main() -> Result<()> {
 
 /// One loaded scorer usable by both ask and eval paths.
 enum EvalScorer {
-    Embed(systemone::embed::EmbedScorer),
-    Llm(systemone::llm::LlmJudge),
-    Nli(systemone::nli::NliScorer),
-    Jev(systemone::jev::JevScorer),
+    Embed(raz::embed::EmbedScorer),
+    Llm(raz::llm::LlmJudge),
+    Nli(raz::nli::NliScorer),
+    Jev(raz::jev::JevScorer),
 }
 
 impl EvalScorer {
@@ -191,28 +191,28 @@ impl EvalScorer {
         let client = OllamaClient::new(backend.ollama_url.clone());
         match kind {
             ScorerKind::Embed => {
-                let mut s = systemone::embed::EmbedScorer::new(client, backend.embed_model.clone());
+                let mut s = raz::embed::EmbedScorer::new(client, backend.embed_model.clone());
                 s.temperature = backend.temperature;
                 Ok(Self::Embed(s))
             }
-            ScorerKind::Llm => Ok(Self::Llm(systemone::llm::LlmJudge::new(
+            ScorerKind::Llm => Ok(Self::Llm(raz::llm::LlmJudge::new(
                 client,
                 backend.llm_model.clone(),
             ))),
-            ScorerKind::Nli => Ok(Self::Nli(systemone::nli::NliScorer::load(&backend.nli_model)?)),
-            ScorerKind::Jev => Ok(Self::Jev(systemone::jev::JevScorer::from_env(
+            ScorerKind::Nli => Ok(Self::Nli(raz::nli::NliScorer::load(&backend.nli_model)?)),
+            ScorerKind::Jev => Ok(Self::Jev(raz::jev::JevScorer::from_env(
                 backend.jev_model.clone(),
             )?)),
         }
     }
 }
 
-impl systemone::Scorer for EvalScorer {
+impl raz::Scorer for EvalScorer {
     async fn answer(
         &self,
         state: &str,
-        question: &systemone::Question,
-    ) -> anyhow::Result<systemone::Answer> {
+        question: &raz::Question,
+    ) -> anyhow::Result<raz::Answer> {
         match self {
             Self::Embed(s) => s.answer(state, question).await,
             Self::Llm(s) => s.answer(state, question).await,
@@ -226,8 +226,8 @@ async fn ask_with(
     kind: ScorerKind,
     backend: &BackendArgs,
     request: &AskRequest,
-) -> Result<systemone::AskResponse> {
-    Ok(systemone::evaluate(&EvalScorer::load(kind, backend)?, request).await?)
+) -> Result<raz::AskResponse> {
+    Ok(raz::evaluate(&EvalScorer::load(kind, backend)?, request).await?)
 }
 
 fn read_input(path: &PathBuf) -> Result<String> {

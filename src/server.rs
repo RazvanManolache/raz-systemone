@@ -1,4 +1,4 @@
-//! HTTP server mimicking Jev's `POST /v1/systemone`: state + typed questions
+//! HTTP server mimicking Jev's `POST /v1/systemone` (kept for compatibility): state + typed questions
 //! in, typed answers out. Scorers live for the process lifetime, so the NLI
 //! model loads once instead of per call.
 
@@ -198,6 +198,6 @@ pub async fn serve_on(
 /// Bind 127.0.0.1:`port` and serve forever.
 pub async fn serve(cfg: ServerConfig) -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(format!("127.0.0.1:{}", cfg.port)).await?;
-    eprintln!("systemone listening on http://127.0.0.1:{}", cfg.port);
+    eprintln!("raz listening on http://127.0.0.1:{}", cfg.port);
     serve_on(listener, cfg).await
 }

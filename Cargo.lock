@@ -2557,6 +2557,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "raz"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "candle-core",
+ "candle-nn",
+ "candle-transformers",
+ "clap",
+ "futures",
+ "hf-hub",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "tokenizers 0.23.2",
+ "tokio",
+]
+
+[[package]]
 name = "reborrow"
 version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3218,25 +3237,6 @@ checksum = "8e1d1b10ced5ca923a1fcb8d03e96b8d3268065d724548c0211415ff6ac6bac4"
 dependencies = [
  "core-foundation-sys",
  "libc",
-]
-
-[[package]]
-name = "systemone"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "candle-core",
- "candle-nn",
- "candle-transformers",
- "clap",
- "futures",
- "hf-hub",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "tokenizers 0.23.2",
- "tokio",
 ]
 
 [[package]]

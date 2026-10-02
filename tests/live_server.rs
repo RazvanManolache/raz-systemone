@@ -3,12 +3,12 @@
 
 #[tokio::test]
 #[ignore]
-async fn server_answers_systemone() {
+async fn server_answers_v1() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    let task = tokio::spawn(systemone::server::serve_on(
+    let task = tokio::spawn(raz::server::serve_on(
         listener,
-        systemone::server::ServerConfig {
+        raz::server::ServerConfig {
             port: 0,
             default_scorer: "embed".to_string(),
             ollama_url: "http://localhost:11434".to_string(),

@@ -2,7 +2,7 @@
 
 Starting from an NLI checkpoint and continuing on domain + public pairs.
 Output dir holds config.json + model.safetensors + tokenizer.json and loads
-directly in systemone:  systemone ask ... --scorer nli --nli-model <out>
+directly in raz:  raz ask ... --scorer nli --nli-model <out>
 """
 
 import argparse
@@ -108,7 +108,7 @@ def main():
     print("final eval:", trainer.evaluate())
     model.save_pretrained(args.out, safe_serialization=True)
     tok.save_pretrained(args.out)
-    print(f"systemone-ready: --scorer nli --nli-model {args.out}")
+    print(f"raz-ready: --scorer nli --nli-model {args.out}")
 
 
 if __name__ == "__main__":

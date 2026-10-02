@@ -5,7 +5,7 @@ Auth: `hf auth login` once, or set HF_TOKEN. The token never touches disk here.
 Example:
   training/.venv/Scripts/python.exe training/upload.py \
       --checkpoint training/runs/v5 --card training/model_cards/v5-xsmall.md \
-      --repo RazvanManolache/systemone-nli-xsmall
+      --repo RazvanManolache/raz-raz-nli-xsmall
 """
 
 import argparse
@@ -21,7 +21,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True, help="train.py --out dir")
     ap.add_argument("--card", required=True, help="model card markdown -> README.md")
-    ap.add_argument("--repo", required=True, help="e.g. user/systemone-nli-xsmall")
+    ap.add_argument("--repo", required=True, help="e.g. user/raz-raz-nli-xsmall")
     ap.add_argument("--private", action="store_true", help="create a private repo")
     args = ap.parse_args()
 

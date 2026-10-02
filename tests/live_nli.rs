@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use systemone::{evaluate, AskRequest, Question};
+use raz::{evaluate, AskRequest, Question};
 
 fn request_for(state: &str) -> AskRequest {
     let questions: HashMap<String, Question> =
@@ -20,7 +20,7 @@ fn request_for(state: &str) -> AskRequest {
 #[tokio::test]
 #[ignore]
 async fn nli_routes_ticket_and_rejects_negation() {
-    let scorer = systemone::nli::NliScorer::load(systemone::nli::DEFAULT_NLI_MODEL).unwrap();
+    let scorer = raz::nli::NliScorer::load(raz::nli::DEFAULT_NLI_MODEL).unwrap();
     let resp = evaluate(
         &scorer,
         &request_for(include_str!("../examples/state.txt")),
@@ -28,11 +28,11 @@ async fn nli_routes_ticket_and_rejects_negation() {
     .await
     .unwrap();
     match resp.answers.get("department").unwrap() {
-        systemone::Answer::Choice { choice, .. } => assert_eq!(choice, "technical"),
+        raz::Answer::Choice { choice, .. } => assert_eq!(choice, "technical"),
         other => panic!("expected choice, got {other:?}"),
     }
     match resp.answers.get("is_urgent").unwrap() {
-        systemone::Answer::Noul { noul } => assert!(*noul > 0.7, "urgent ticket: {noul}"),
+        raz::Answer::Noul { noul } => assert!(*noul > 0.7, "urgent ticket: {noul}"),
         other => panic!("expected noul, got {other:?}"),
     }
 
@@ -43,7 +43,7 @@ async fn nli_routes_ticket_and_rejects_negation() {
     .await
     .unwrap();
     match resp.answers.get("is_urgent").unwrap() {
-        systemone::Answer::Noul { noul } => assert!(*noul < 0.3, "negation: {noul}"),
+        raz::Answer::Noul { noul } => assert!(*noul < 0.3, "negation: {noul}"),
         other => panic!("expected noul, got {other:?}"),
     }
 }

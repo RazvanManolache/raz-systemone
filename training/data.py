@@ -2,7 +2,7 @@
 
 Row format: {"premise": str, "hypothesis": str, "label": 0|1|2}
 Label ids: 0 = contradiction, 1 = entailment, 2 = neutral.
-(train.py writes this mapping into the model config; systemone reads it back
+(train.py writes this mapping into the model config; raz reads it back
 dynamically, so the order only has to be self-consistent.)
 """
 

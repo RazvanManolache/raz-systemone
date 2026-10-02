@@ -6,14 +6,14 @@ library_name: transformers
 ---
 
 <!-- Eval rows mirror the master table in training/README.md of
-     https://github.com/RazvanManolache/systemone -->
+     https://github.com/RazvanManolache/raz-raz -->
 
-# systemone-nli-base (v7)
+# raz-raz-nli-base (v7)
 
-184M-param sibling of `systemone-nli-xsmall`: same 725 NLI pairs from 110
+184M-param sibling of `raz-raz-nli-xsmall`: same 725 NLI pairs from 110
 labeled support-ticket states (repeat 8x) + 200,000 MNLI rows, 2 epochs,
 from `cross-encoder/nli-deberta-v3-base`. Powers the `nli` scorer in
-[systemone](https://github.com/RazvanManolache/systemone) via
+[raz](https://github.com/RazvanManolache/raz-raz) via
 `--nli-model <dir>`. 738MB.
 
 ## Eval (all on states never seen in training)
@@ -34,8 +34,8 @@ queries, xsmall for the best balance (and 10-min retrains vs ~2h).
 ## Use
 
 Same as xsmall: `AutoModelForSequenceClassification`, label 1 =
-entailment, premise + hypothesis per answer. Or in systemone:
-`hf download RazvanManolache/systemone-nli-base --local-dir nli-base`
+entailment, premise + hypothesis per answer. Or in raz:
+`hf download RazvanManolache/raz-raz-nli-base --local-dir nli-base`
 then `--scorer nli --nli-model nli-base`.
 
 ## Limits

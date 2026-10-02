@@ -1,59 +1,158 @@
-# systemone
+# Raz SystemOne
 
-Jev-like typed decisions over local models: send a state + typed
-questions (`choice` / `score` / `noul`), get back probabilities, not text.
-
-## Usage
+Raz (`raz`) gives **probabilities for answers, not text**. Send a state plus
+typed questions — `choice` (pick one), `score` (pick a rubric level), `noul`
+(probability a statement holds) — and get back a calibrated distribution per
+question. A Jev-compatible mini-clone that runs on local models, with its own
+finetuned NLI checkpoints that match LLM-judge accuracy at a fraction of the
+cost.
 
 ```powershell
-# one-shot CLI
-cargo run -q -- ask --state-file examples/state.txt --questions examples/questions.json --scorer nli
-
-# HTTP server (Jev-compatible POST /v1/systemone, + /v1/models, /healthz)
-cargo run -q -- serve --port 18080 --scorer nli
-
-# calibration eval on the labeled set (190 states, 547 judgments)
-cargo run -q --release -- eval --data tests/data/tickets.jsonl --scorer llm
-cargo run -q --release -- eval --data tests/data/tickets.jsonl --scorer llm --llm-model judge-3b-4k
-# per-judgment JSONL dump for offline analysis/fitting
-cargo run -q --release -- eval --data tests/data/tickets.jsonl --scorer llm --dump out.jsonl
+cargo run -q --release -- ask --state-file examples/state.txt --questions examples/questions.json --scorer nli
+# {"answers": {"department": {"type": "choice", "choice": "technical", ...}}}
 ```
 
-Request shape (`model` picks the scorer, defaults to the server default):
+## Install
+
+Prereqs: a Rust stable toolchain (`rustup`), and optionally
+[Ollama](https://ollama.com) (only the `embed`/`llm` scorers need it) and the
+`hf` CLI (only for downloading our checkpoints).
+
+```powershell
+git clone https://github.com/RazvanManolache/raz-systemone.git
+cd raz-systemone
+cargo build --release        # binary: target/release/raz(.exe)
+cargo test                   # 12 hermetic unit tests
+```
+
+Copy `.env.example` to `.env` (git-ignored) only if you use the `jev`
+reference scorer, which needs `TYPESAFE_API_KEY`.
+
+## Quickstart
+
+One-shot CLI (default scorer: `embed`, needs Ollama + `nomic-embed-text`):
+
+```powershell
+raz ask --state-file examples/state.txt --questions examples/questions.json --scorer nli
+raz ask --state "The integration keeps failing, please help ASAP." --questions examples/questions.json --scorer llm
+Get-Content ticket.txt | raz ask --state-file - --questions examples/questions.json
+```
+
+HTTP server (default scorer: `nli`, CPU-only, no Ollama needed):
+
+```powershell
+raz serve --port 18080 --scorer nli
+curl -s -X POST http://127.0.0.1:18080/v1/systemone -H "Content-Type: application/json" `
+  -d '{"state": "...", "model": "nli", "questions": {"department": {"type": "choice", "instructions": "Which team", "criteria": {"billing": "Payment issues", "technical": "Bugs"}}}}'
+```
+
+Calibration eval on the labeled set (190 states, 547 judgments):
+
+```powershell
+cargo run -q --release -- eval --data tests/data/tickets.jsonl --scorer nli --dump out.jsonl
+```
+
+## CLI reference
+
+`raz ask` — answer questions, print `{"answers": {...}}` as JSON.
+
+| flag | meaning |
+|---|---|
+| `--state` / `--state-file` | state inline, from file, or `-` for stdin (exactly one) |
+| `--questions` | JSON file `{"name": {"type": ...}}`, or `-` for stdin |
+| `--scorer` | `embed` (default for ask), `llm`, `nli`, `jev` |
+
+`raz serve` — HTTP server on `127.0.0.1`.
+
+| flag | default | meaning |
+|---|---|---|
+| `--port` | 8080 | bind port (examples use 18080; 8080 is blocked on some machines) |
+| `--scorer` | `nli` | default when a request omits `"model"` |
+
+`raz eval` — accuracy + calibration (ECE) on a labeled JSONL set.
+
+| flag | default | meaning |
+|---|---|---|
+| `--data` | — | labeled cases, one JSON object per line (see `tests/data`) |
+| `--scorer` | `nli` | which scorer to measure |
+| `--limit` | 0 (all) | stop after N cases |
+| `--dump` | — | write one JSON line per judgment (offline analysis/fitting) |
+
+Backend flags (all subcommands):
+
+| flag | default | used by |
+|---|---|---|
+| `--ollama-url` | `http://localhost:11434` | `embed`, `llm` |
+| `--embed-model` | `nomic-embed-text` | `embed` |
+| `--llm-model` | `huihui_ai/phi4-abliterated` | `llm` |
+| `--nli-model` | `cross-encoder/nli-deberta-v3-xsmall` | `nli` (HF id or local dir) |
+| `--jev-model` | `jev-latest` | `jev` (key from `TYPESAFE_API_KEY` or `.env`) |
+| `--temperature` | 0.1 | `embed` (softmax over cosine scores) |
+
+## HTTP API
+
+`POST /v1/systemone` (path kept Jev-compatible). Body: `state`, optional
+`model` (one of `embed|llm|nli|jev`, else the server default), and
+`questions`. Response: `{"model": ..., "answers": {...}}`.
+
+`GET /v1/models` → `{"default": ..., "scorers": [...], "backends": {...}}`.
+`GET /healthz` → `ok`. Errors are `{"error": msg}` (400 unknown scorer or
+unconfigured `jev`; 500 scorer failure).
+
+## Question types and answer shapes
 
 ```json
-{
-  "state": "The integration keeps failing, please help ASAP.",
-  "model": "nli",
-  "questions": {
-    "department": {
-      "type": "choice",
-      "instructions": "Which team should handle this",
-      "criteria": {
-        "billing": "Payment or subscription issues",
-        "technical": "Bugs or integration problems",
-        "sales": "Pricing or account questions"
-      }
-    }
-  }
-}
+"department": {"type": "choice", "instructions": "Which team should handle this",
+  "criteria": {"billing": "Payment or subscription issues", "technical": "Bugs or integration problems", "sales": "Pricing or account questions"}}
+"frustration": {"type": "score", "instructions": "How frustrated is the customer",
+  "criteria": ["Calm, just stating facts", "Frustrated but civil", "Very angry, strong language"]}
+"is_urgent": {"type": "noul", "instructions": "The message conveys urgency or time-sensitivity"}
+```
+
+Answers (untagged `type` field tells them apart):
+
+```json
+"department": {"type": "choice", "choice": "technical",
+  "probabilities": {"billing": 0.08, "technical": 0.85, "sales": 0.07}, "confidence": 0.85},
+"frustration": {"type": "score", "score": 1.2,
+  "probabilities": {"0": 0.1, "1": 0.6, "2": 0.3}, "confidence": 0.6,
+  "legend": {"0": "Calm, just stating facts", "1": "Frustrated but civil", "2": "Very angry, strong language"}},
+"is_urgent": {"type": "noul", "noul": 0.91}
 ```
 
 ## Scorers
 
-- `embed` (default for `ask`): cosine similarity + softmax. Fast, local,
-  uncalibrated; cannot handle negation. `--embed-model` (default
-  `nomic-embed-text`), `--temperature` (default 0.1).
-- `llm`: a chat model answers a single-token constrained question; first-token
-  logprobs become the distribution. Needs a model that emits the bare label
-  first â€” chatty/thinking models (qwen3) fail loudly. `--llm-model`.
-- `nli` (default for `serve`/`eval`): DeBERTa-v3 cross-encoder (MNLI/SNLI)
-  reads state + hypothesis together in one batched forward pass; entailment
-  (choice) or entail-vs-contra contrast (score/noul) becomes the score.
-  No Ollama needed, CPU-only. `--nli-model` loads a local dir: the stock
-  checkpoint (~90MB from HF Hub) or our finetuned ones (see Checkpoints).
+- `embed`: cosine similarity between state and option embeddings + softmax.
+  Fast, local, uncalibrated; **cannot handle negation** (negated phrases
+  still score ~1.0). Embed model via `--embed-model`.
+- `llm`: a chat model answers a single-token constrained question;
+  first-token logprobs become the distribution. Needs a model that emits
+  the bare label first — chatty/thinking models fail loudly. Default
+  `huihui_ai/phi4-abliterated` (measured best, holdout-validated);
+  `judge-3b-4k` (a local 4k-context llama3.2:3b: 23GB → 7GB, 3x faster)
+  trades accuracy for speed.
+- `nli`: a DeBERTa-v3 cross-encoder reads state + hypothesis together in
+  one batched forward pass; entailment (choice) or entail-vs-contra
+  contrast (score/noul) becomes the score. No Ollama, CPU-only, model
+  loads once per process (CLI ~1.7s cold) or once per server (~220ms
+  served, scales near-linearly to 4 concurrent). `--nli-model` takes a
+  HF id or a local dir — stock or our finetuned checkpoints.
 - `jev`: the real TypeSafe API as a reference scorer. Key from
-  `TYPESAFE_API_KEY` or a (git-ignored) `.env` file. `--jev-model`.
+  `TYPESAFE_API_KEY` or `.env`.
+
+## Checkpoints
+
+Our finetuned NLI checkpoints ([full results table](training/README.md#holdout-results-master-table)):
+
+- [raz-systemone-nli-xsmall](https://huggingface.co/RazvanManolache/raz-systemone-nli-xsmall)
+  (v5, 283MB) — best balanced; at/near LLM-judge accuracy, CPU-only.
+- [raz-systemone-nli-base](https://huggingface.co/RazvanManolache/raz-systemone-nli-base)
+  (v7, 738MB) — best on broad queries; near-perfect on the 60-state split.
+
+```powershell
+hf download RazvanManolache/raz-systemone-nli-xsmall --local-dir nli-xsmall
+raz ask --state-file examples/state.txt --questions examples/questions.json --scorer nli --nli-model nli-xsmall
+```
 
 ## Scoreboard (70-state core eval, 199 judgments, labels fixed before any run)
 
@@ -76,27 +175,50 @@ and temperature scaling were all tried: the example shipped (it fixed
 small-model Yes-bias), while the blend and temperatures fit noise on split
 A and lost on split B, so they were removed rather than shipped.
 Embed-noul sits exactly on the always-true rate: similarity saturates, it
-never says no. Â±1 judgment of run-to-run GPU noise on near-tie argmaxes.
+never says no. ±1 judgment of run-to-run GPU noise on near-tie argmaxes.
 
 Warm 3-question latency, CLI med-of-5: embed ~150ms, llm-phi4 ~150ms,
 llm-3B ~160ms, jev-api ~370ms, NLI ~1.7s (per-process model load) /
 ~220ms served. Server NLI scales near-linearly to 4 concurrent
-(lock-free candle) and costs ~400MB RAM; phi4 holds ~12GB VRAM
-(cold load ~3.5s).
+(lock-free) and costs ~400MB RAM; phi4 holds ~12GB VRAM (cold load ~3.5s).
 
-## Checkpoints
+## Labels and eval data
 
-Our finetuned NLI checkpoints ([results table](training/README.md#holdout-results-master-table)):
+`tests/data/tickets.jsonl` holds 190 hand-written support states with
+`department` / `frustration` / `is_urgent` labels (547 judgments). Fit
+files (`fit100/120/150/180.jsonl`) are train-state lists; `holdout{C,D,E,F,G}.jsonl`
+are quarantined states no checkpoint trained on — the only honest
+comparison (full-file numbers are train-contaminated for finetuned
+models). See [training/README.md](training/README.md) for the splits
+registry and the finetuning results.
 
-- [systemone-nli-xsmall](https://huggingface.co/RazvanManolache/systemone-nli-xsmall)
-  (v5, 283MB) â€” best balanced; at/near LLM-judge accuracy, CPU-only.
-- [systemone-nli-base](https://huggingface.co/RazvanManolache/systemone-nli-base)
-  (v7, 738MB) â€” best on broad queries; near-perfect on the 60-state split.
+## Tests
 
-```powershell
-hf download RazvanManolache/systemone-nli-xsmall --local-dir nli-xsmall
-cargo run -q --release -- ask --state-file examples/state.txt --questions examples/questions.json --scorer nli --nli-model nli-xsmall
-```
+- `cargo test` — hermetic unit tests (math, logprob parsing, contrast, ECE).
+- `cargo test -- --ignored` — live tests (Ollama scorers, NLI, HTTP server,
+  Jev reference; need Ollama and, for Jev, `TYPESAFE_API_KEY`).
+
+## Layout
+
+- `src/` — the Rust runner: CLI (`main.rs`), library (`lib.rs`), scorers
+  (`embed.rs`, `llm.rs`, `nli.rs`, `jev.rs`), server (`server.rs`), eval
+  harness (`eval.rs`), shared Ollama client + math.
+- `tests/` — live (ignored) integration tests.
+- `tests/data/` — labels and train/holdout splits.
+- `examples/` — sample state + questions for `ask`.
+- `training/` — trainer (`data.py`, `train.py`, `upload.py`), model cards,
+  and the results log. `training/runs/` (checkpoints, MNLI) is git-ignored.
+
+## Troubleshooting
+
+- `serve` fails to bind: port 8080 is blocked on some machines — use
+  `--port 18080` (or anything free).
+- `llm` scorer errors about missing labels: the model chatters instead of
+  emitting the bare label — use phi4-abliterated or `judge-3b-4k`.
+- CUDA out of memory with Ollama: keep one resident judge (phi4 ~12GB);
+  `ollama stop <model>` frees the rest. The `nli` scorer needs no GPU.
+- Slow first NLI call: one-time model download + load (~90MB stock);
+  the server loads once and reuses it.
 
 ## Training your own checkpoint
 
@@ -107,24 +229,6 @@ and loads via `--nli-model <dir>` with no Rust changes. See
 [training/README.md](training/README.md) (includes the release checklist
 and Hub-publish commands).
 
-## Tests
-
-- `cargo test` â€” hermetic unit tests (math, logprob parsing, contrast, ECE).
-- `cargo test -- --ignored` â€” live tests (Ollama scorers, NLI, HTTP server).
-
-## Notes
-
-- `judge-3b-4k` is a local Ollama variant (`num_ctx 4096`) of
-  llama3.2:3b-instruct-fp16: 23GB â†’ 7GB, 3x faster, identical verdicts.
-- Port 8080 is blocked on this machine; examples use 18080.
-
-## Layout
-
-- `src/` + `tests/` + `examples/` â€” the Rust runner (CLI + server + eval).
-- `tests/data/` â€” labels (`tickets.jsonl`) and train/holdout splits.
-- `training/` â€” trainer (`data.py`, `train.py`, `upload.py`), model cards,
-  and the results log. `training/runs/` (checkpoints, MNLI) is git-ignored.
-
 ## License
 
-MIT â€” see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

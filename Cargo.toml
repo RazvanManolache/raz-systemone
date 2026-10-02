@@ -1,10 +1,10 @@
 [package]
-name = "systemone"
+name = "raz"
 version = "0.1.0"
 edition = "2021"
 description = "Jev-like typed decisions over local models: probabilities for answers, not text"
 license = "MIT"
-repository = "https://github.com/RazvanManolache/systemone"
+repository = "https://github.com/RazvanManolache/raz-systemone"
 readme = "README.md"
 keywords = ["nlp", "nli", "calibration", "llm"]
 categories = ["command-line-utilities", "web-programming"]
