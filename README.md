@@ -46,7 +46,7 @@ curl -s -X POST http://127.0.0.1:18080/v1/systemone -H "Content-Type: applicatio
   -d '{"state": "...", "model": "nli", "questions": {"department": {"type": "choice", "instructions": "Which team", "criteria": {"billing": "Payment issues", "technical": "Bugs"}}}}'
 ```
 
-Calibration eval on the labeled set (190 states, 547 judgments):
+Calibration eval on the labeled set (200 states, 576 judgments):
 
 ```powershell
 cargo run -q --release -- eval --data tests/data/tickets.jsonl --scorer nli --dump out.jsonl
@@ -182,15 +182,42 @@ llm-3B ~160ms, jev-api ~370ms, NLI ~1.7s (per-process model load) /
 ~220ms served. Server NLI scales near-linearly to 4 concurrent
 (lock-free) and costs ~400MB RAM; phi4 holds ~12GB VRAM (cold load ~3.5s).
 
+## Showdown (all models on the same unseen holdouts C–G, macro = mean)
+
+| model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro |
+|---|---|---|---|---|---|---|---|
+| jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | **.897** |
+| v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 |
+| v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 |
+| v9 (ours, xsmall + Open-Jev) | 71M | .883 | .800 | .900 | .964 | .862 | .882 |
+| v11 (ours, v9 + shreyanbr pairs) | 71M | .917 | .833 | .867 | .857 | .828 | .860 |
+| phi4-abliterated (LLM judge) | 14B | .883 | .833 | .867 | .821 | .862 | .853 |
+| mistral-nemo (LLM judge) | 12B | .683 | .700 | .633 | .679 | .759 | .687 |
+| judge-3b-4k (LLM judge) | 3B | .533 | .667 | .500 | .679 | .690 | .614 |
+| shreyanbr-gold (external xsmall) | 71M | .600 | .567 | .600 | .571 | .586 | .585 |
+| embed (nomic) | — | .500 | .467 | .533 | .500 | .517 | .503 |
+| base xsmall (zero-shot) | 71M | .400 | .433 | .333 | .679 | .483 | .466 |
+| qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 |
+
+Jev still leads overall, but our 71M v5/v9 beat it on E and F (v9 takes
+F to .964) and trail by ~.01 macro — while beating the 14B phi4 judge on
+every split. Choice is essentially solved (several perfect 1.00s);
+frustration tone is the remaining gap. External references (qyvos,
+shreyanbr-gold) confirm the pattern: everyone wins at home, nobody
+travels — except v9, which also beats Qyvos on Open-Jev's own test
+(.846 vs .831; see [training/README.md](training/README.md)).
+
 ## Labels and eval data
 
-`tests/data/tickets.jsonl` holds 190 hand-written support states with
-`department` / `frustration` / `is_urgent` labels (547 judgments). Fit
+`tests/data/tickets.jsonl` holds 200 hand-written support states with
+`department` / `frustration` / `is_urgent` labels (576 judgments). Fit
 files (`fit100/120/150/180.jsonl`) are train-state lists; `holdout{C,D,E,F,G}.jsonl`
 are quarantined states no checkpoint trained on — the only honest
 comparison (full-file numbers are train-contaminated for finetuned
-models). See [training/README.md](training/README.md) for the splits
-registry and the finetuning results.
+models); `calib.jsonl` (t191–200) is a quarantined calibration-only split
+(fit post-hoc scalers on it, never train on it, never report accuracy on it).
+See [training/README.md](training/README.md) for the splits registry and
+the finetuning results.
 
 ## Tests
 

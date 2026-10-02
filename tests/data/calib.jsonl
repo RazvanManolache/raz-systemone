@@ -1,0 +1,10 @@
+{"id":"t191","state":"Hi there, how do I change my password?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t192","state":"I was billed twice this month and want it fixed now.","department":"billing","frustration":1,"is_urgent":true}
+{"id":"t193","state":"Do you offer nonprofit pricing for small teams?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t194","state":"This is RIDICULOUS. My account was locked for NO REASON and nobody answers the phone!!","department":"technical","frustration":2,"is_urgent":true}
+{"id":"t195","state":"The invoice total doesn't match the quote we approved.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t196","state":"Just wanted to say the new dashboard looks great!","frustration":0,"is_urgent":false}
+{"id":"t197","state":"Our API key stopped working overnight and orders are piling up.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t198","state":"Can I downgrade to the free plan at the end of the cycle?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t199","state":"Still waiting for the refund you promised WEEKS ago. Unacceptable.","department":"billing","frustration":2,"is_urgent":false}
+{"id":"t200","state":"Where can I find the changelog for last week's release?","department":"technical","frustration":0,"is_urgent":false}

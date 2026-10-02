@@ -157,6 +157,7 @@ t161–t180 fru labels (pack `full-pack4`, 850 pairs) unused by any run.
 | `tests/data/fit150.jsonl` | 110 | v3–v7 train states |
 | `tests/data/fit180.jsonl` | 130 | banked (v8), unused |
 | `tests/data/holdout{C,D,E,F,G}.jsonl` | 20/10/10/10/10 | quarantined; in no train mix |
+| `tests/data/calib.jsonl` | 10 (t191–200) | quarantined; fit scalers only — never train, never test-report |
 
 Packs under `training/runs/` (git-ignored, reproducible via `data.py`):
 `full-pack` 454, `full-pack2` 594, `full-pack3` 725, `full-pack4` 850,
