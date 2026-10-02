@@ -107,14 +107,15 @@ The single home for checkpoint numbers. Overall accuracy on states never
 seen in training. Model cards in `model_cards/` mirror their model's
 column; the root README links here instead of repeating numbers.
 
-| split | n | base | smoke2 | v1 | v2 | v3 | v4 | v5 | v6 | v7 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| C | 60 | .40 | .55 | .80 | .867 | .867 | .883 | .90 | .883 | **.983** |
-| D | 30 | .433 | .60 | .667 | .80 | .733 | .767 | .833 | .833 | **.867** |
-| E | 30 | .333 | .367 | .633 | .80 | .733 | .80 | .90 | **.933** | .833 |
-| F | 28 | .679 | .607 | .786 | .857 | .857 | **.893** | **.893** | .857 | .857 |
-| G | 29 | .483 | — | .793 | .862 | .793 | .862 | **.897** | .828 | **.897** |
-| MNLI | 10000 | — | — | .942 | .9416 | .9424 | .9418 | .9411 | .941 | **.9802** |
+| split | n | base | smoke2 | v1 | v2 | v3 | v4 | v5 | v6 | v7 | v9 | v10 | v11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| C | 60 | .40 | .55 | .80 | .867 | .867 | .883 | .90 | .883 | **.983** | .883 | .717 | .917 |
+| D | 30 | .433 | .60 | .667 | .80 | .733 | .767 | .833 | .833 | **.867** | .80 | .633 | .833 |
+| E | 30 | .333 | .367 | .633 | .80 | .733 | .80 | .90 | **.933** | .833 | .90 | .533 | .867 |
+| F | 28 | .679 | .607 | .786 | .857 | .857 | .893 | .893 | .857 | .857 | **.964** | .714 | .857 |
+| G | 29 | .483 | — | .793 | .862 | .793 | .862 | **.897** | .828 | **.897** | .862 | .552 | .828 |
+| MNLI | 10000 | — | — | .942 | .9416 | .9424 | .9418 | .9411 | .941 | **.9802** | .9385 | — | .9378 |
+| OJ-900 | 900 | .370 | — | — | — | — | — | .432 | — | .474 | **.846** | .782 | .829 |
 
 ## Recipes
 
@@ -146,6 +147,48 @@ All runs: 2 epochs, batch 64, + 200k MNLI, on a 5080 (~10 min xsmall,
 
 Open: v5's fru-targeted sampling on the base backbone; the banked
 t161–t180 fru labels (pack `full-pack4`, 850 pairs) unused by any run.
+
+## Outside-data era (v9–v11)
+
+Public Jev-ecosystem artifacts (TypeSafe's Open-Jev, shreyanbr's pairs —
+see Data sources) unlocked cross-distribution training. New tools:
+`openjev2pairs.py` (parquet → hard pairs + soft listwise rows),
+`tickets2soft.py` (tickets → listwise rows), `train_soft.py` (listwise
+soft-CE, Qyvos-style objective on our 3-class head), `calibrate.py`
+(offline per-question temperature + Platt on `--dump` output).
+
+- **v9** (bilingual champ): v4 mix + 267k Open-Jev hard pairs (1x).
+  MNLI .9385 / .021. Holds our splits (F .964, new best), jumps
+  Open-Jev-900 .43 → **.846** — past Qyvos (.831) and the Jev API (.811).
+- **v11** (+99k shreyanbr pairs mapped 1:1): MNLI .9378 / .023. C .917
+  (new best, perfect choice) but F/G drop: banking-intent data helps
+  choice and dilutes tone. More data ≠ better; domain match matters.
+- **v10** (soft-CE, 1 epoch, `train_soft.py`): Open-Jev val .77 / .61;
+  ours C–G .55–.72, OJ-900 .782. Loses to hard pointwise CE on both
+  turfs — confounded by 1-vs-2 epochs and inference-template mismatch
+  (raw options at train vs templated hypotheses + contrast-noul at
+  inference). Needs a 2-epoch rematch before judging the objective.
+
+## Calibration (post-hoc, offline only)
+
+`calibrate.py` fits per-question temperature (choice/score) + Platt
+(noul) on `--dump` output. Fit on the quarantined `calib.jsonl` (29
+judgments), tested for transfer on C–G: helps C consistently (v5 NLL
+.37→.23, ECE .12→.07) but is mixed elsewhere and blows up NLL on G
+(v5 .59→1.23) — 29 judgments fit noise, same lesson as the early
+temperature attempt. Not wired into the scorer. The honest next try is
+fitting on Open-Jev's 4672-row calibration split.
+
+## Data sources (outside `tests/data`)
+
+| source | what | used in |
+|---|---|---|
+| `ZefanCai/Open-Jev` train (CC0) | 79k rows → 267k hard pairs + 79k soft rows | v9, v10, v11 |
+| `ZefanCai/Open-Jev` validation | 3723 soft rows (train_soft eval) | v10 |
+| `ZefanCai/Open-Jev` test | fixed 900-row round-robin sample (OJ-900) | cross-bench only, never train |
+| `shreyanbr/system-one-training-pairs` | 99k pairs, labels map 1:1 to ours | v11 |
+| `TypeSafeAI/Qyvos`, `shreyanbr-gold` | external reference models | cross-bench only |
+| `typesafe/evalsafe-*` | checked; action-generation eval, doesn't map to typed decisions | — |
 
 ## Data splits
 

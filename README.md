@@ -161,64 +161,70 @@ hf download RazvanManolache/raz-systemone-nli-xsmall --local-dir nli-xsmall
 raz ask --state-file examples/state.txt --questions examples/questions.json --scorer nli --nli-model nli-xsmall
 ```
 
-## Scoreboard (70-state core eval, 199 judgments, labels fixed before any run)
+## Scoreboard (every model on the same unseen splits; macro = mean of C–G)
 
-| scorer | overall | choice | score | noul | ECE |
-|---|---|---|---|---|---|
-| jev (jev-latest, reference) | .89 | .97 | .89 | .84 | .07 |
-| llm (phi4-abliterated 14B) | .89 | .97 | .81 | .91 | .09 |
-| llm (mistral-nemo 12B) | .76 | .90 | .50 | .90 | .12 |
-| llm (llama3.2:3b, 4k ctx) | .63 | .85 | .41 | .67 | .13 |
-| nli (deberta-v3-xsmall) | .57 | .61 | .57 | .54 | .18 |
-| nli (deberta-v3-base) | .51 | .76 | .44 | .36 | .29 |
-| nli (DeBERTa-v3-base-mnli-fever-anli) | .51 | .58 | .60 | .36 | .25 |
-| embed (nomic) | .49 | .70 | .57 | .23 | .36 |
+OJ-900 = accuracy on a fixed 900-row Open-Jev test sample (— where the
+model can't run that harness: LLM judges need fixed label sets). All
+holdouts were quarantined before any training run.
 
-Local phi4 ties Jev overall (.894 = 178/199 each) with opposite strengths:
-phi4 wins urgency (.91 vs .84), Jev wins tone (.89 vs .81) and calibration.
-phi4 was selected on 50 states and confirmed on a 20-state holdout (.883)
-before becoming the default judge. A calm-No prompt example, an NLI blend,
-and temperature scaling were all tried: the example shipped (it fixed
-small-model Yes-bias), while the blend and temperatures fit noise on split
-A and lost on split B, so they were removed rather than shipped.
-Embed-noul sits exactly on the always-true rate: similarity saturates, it
-never says no. ±1 judgment of run-to-run GPU noise on near-tie argmaxes.
+| model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro | OJ-900 |
+|---|---|---|---|---|---|---|---|---|
+| route (choice→v7, score→jev, noul→v5) | hybrid | .950 | .933 | .900 | .893 | .897 | **.915** | — |
+| jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | .897 | .811 |
+| v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 | .474 |
+| v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 | .432 |
+| v9 (ours, xsmall + Open-Jev) | 71M | .883 | .800 | .900 | .964 | .862 | .882 | **.846** |
+| v11 (ours, v9 + shreyanbr pairs) | 71M | .917 | .833 | .867 | .857 | .828 | .860 | .829 |
+| phi4-abliterated (LLM judge) | 14B | .883 | .833 | .867 | .821 | .862 | .853 | — |
+| mistral-nemo (LLM judge) | 12B | .683 | .700 | .633 | .679 | .759 | .687 | — |
+| v10 (ours, soft-CE, 1 epoch) | 71M | .717 | .633 | .533 | .714 | .552 | .630 | .782 |
+| judge-3b-4k (LLM judge) | 3B | .533 | .667 | .500 | .679 | .690 | .614 | — |
+| shreyanbr-gold (external xsmall) | 71M | .600 | .567 | .600 | .571 | .586 | .585 | .343 |
+| embed (nomic) | — | .500 | .467 | .533 | .500 | .517 | .503 | — |
+| moritz (DeBERTa-mnli-fever-anli) | 184M | .417 | .467 | .333 | .714 | .483 | .483 | .563 |
+| base xsmall (zero-shot) | 71M | .400 | .433 | .333 | .679 | .483 | .466 | .370 |
+| qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 | .831 |
+| base-base (zero-shot) | 184M | .383 | .400 | .167 | .679 | .517 | .429 | .490 |
 
-Warm 3-question latency, CLI med-of-5: embed ~150ms, llm-phi4 ~150ms,
-llm-3B ~160ms, jev-api ~370ms, NLI ~1.7s (per-process model load) /
-~220ms served. Server NLI scales near-linearly to 4 concurrent
-(lock-free) and costs ~400MB RAM; phi4 holds ~12GB VRAM (cold load ~3.5s).
+The per-type router leads (.915 macro, 163/177 pooled): choice→v7 (54/57),
+score→jev (54/60), noul→v5 (55/60). The per-split oracle is .949 pooled,
+so most headroom is captured — but the routing was picked on these same
+splits, so the true edge is likely smaller until a fresh holdout confirms
+it. Below the router, Jev leads single models on our labels while our 71M
+v5/v9 beat it on E and F (v9 takes F to .964) and beat the 14B phi4 judge
+on every split. Choice is essentially solved; frustration tone is the gap
+(Jev still leads score .89 vs next-best .87). On Open-Jev's own turf, our
+v9 beats both the Jev API (.846 vs .811) and the official Qyvos (.831) —
+the only model bilingual in both distributions. v10's soft-CE (1 epoch)
+loses to hard pointwise CE on both turfs; needs a 2-epoch rematch with
+matched inference templates before judging the objective. A calm-No prompt
+example, an NLI blend, and temperature scaling were all tried early: the
+example shipped (it fixed small-model Yes-bias); the blend and temperatures
+fit noise and were removed. ±1 judgment of run-to-run GPU noise on
+near-tie argmaxes.
 
-## Showdown (all models on the same unseen holdouts C–G, macro = mean)
+## Performance (pure processing; RTX 5080 + Ryzen 9 9950X3D)
 
-| model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro |
-|---|---|---|---|---|---|---|---|
-| route (choice→v7, score→jev, noul→v5) | hybrid | .950 | .933 | .900 | .893 | .897 | **.915** |
-| jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | .897 |
-| v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 |
-| v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 |
-| v9 (ours, xsmall + Open-Jev) | 71M | .883 | .800 | .900 | .964 | .862 | .882 |
-| v11 (ours, v9 + shreyanbr pairs) | 71M | .917 | .833 | .867 | .857 | .828 | .860 |
-| phi4-abliterated (LLM judge) | 14B | .883 | .833 | .867 | .821 | .862 | .853 |
-| mistral-nemo (LLM judge) | 12B | .683 | .700 | .633 | .679 | .759 | .687 |
-| judge-3b-4k (LLM judge) | 3B | .533 | .667 | .500 | .679 | .690 | .614 |
-| shreyanbr-gold (external xsmall) | 71M | .600 | .567 | .600 | .571 | .586 | .585 |
-| embed (nomic) | — | .500 | .467 | .533 | .500 | .517 | .503 |
-| base xsmall (zero-shot) | 71M | .400 | .433 | .333 | .679 | .483 | .466 |
-| qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 |
+NLI medians are batched forward passes on CPU (one-time model load
+excluded); judges are med-of-3 warm `ask` runs over localhost (network
+≈ 0, so this is pure processing); Jev is med-of-3 client-side (its
+server time is unobservable — the API returns no timing fields).
 
-The per-type router leads overall (.915 macro, 163/177 pooled): choice→v7
-(54/57), score→jev (54/60), noul→v5 (55/60) — each leg the measured best
-of 14 models at its job. The per-split oracle (best model per split×type)
-is .949 pooled, so most of the headroom is captured. Caveat: the routing
-was picked on these same splits, so the true edge is likely a bit smaller;
-it needs a fresh holdout to confirm. Below the router, Jev leads single
-models, but our 71M v5/v9 beat it on E and F (v9 takes F to .964) and beat
-the 14B phi4 judge on every split. Choice is essentially solved (several
-perfect 1.00s); frustration tone is the remaining gap. External references
-(qyvos, shreyanbr-gold) confirm the pattern: everyone wins at home, nobody
-travels — except v9, which also beats Qyvos on Open-Jev's own test
-(.846 vs .831; see [training/README.md](training/README.md)).
+| model | ms/question | runs on |
+|---|---|---|
+| ours xsmall (v5/v9/v10/v11) | 13 | CPU, batched |
+| ours base (v7) | 31 | CPU, batched |
+| qyvos | 15 | CPU |
+| shreyanbr-gold | 14 | CPU |
+| judge-3b-4k | ~256 | GPU, 7GB VRAM |
+| phi4-abliterated | ~282 | GPU, 12GB VRAM |
+| mistral-nemo | ~388 | 26% GPU + CPU offload (262k ctx) |
+| nomic-embed | ~248 | GPU, 323MB VRAM |
+| jev (API) | ~351 | cloud (client-side, incl. internet) |
+
+The 71M NLI answers ~20x faster than the 14B judge and ~25x faster than
+the Jev API call. Server NLI scales near-linearly to 4 concurrent
+(lock-free) and costs ~400MB RAM; phi4 cold-loads in ~3.5s.
 
 ## Labels and eval data
 
