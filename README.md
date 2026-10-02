@@ -167,12 +167,14 @@ raz ask --state-file examples/state.txt --questions examples/questions.json --sc
 
 OJ-900 = accuracy on a fixed 900-row Open-Jev test sample (LLM judges via
 the same letter-label logprob harness as `llm.rs`, verified bit-identical
-on cross-check rows; only `route` can't run it — its legs are our-3-question
-specialists). All holdouts were quarantined before any training run.
+on cross-check rows). `route` runs the same NLI harness per leg
+(choice→v7, score→v7, noul→v9); its legs were picked on our holdouts, so
+its OJ number measures transfer, not tuning. All holdouts were quarantined
+before any training run.
 
 | model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro | OJ-900 |
 |---|---|---|---|---|---|---|---|---|
-| route (choice→v7, score→v7, noul→v9) | ours | .950 | .900 | .867 | .893 | .897 | **.901** | — |
+| route (choice→v7, score→v7, noul→v9) | ours | .950 | .900 | .867 | .893 | .897 | **.901** | .652 |
 | jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | .897 | .811 |
 | v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 | .474 |
 | v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 | .432 |
