@@ -17,6 +17,7 @@ async fn server_answers_v1() {
             nli_model: "unused".to_string(),
             jev_api_key: None,
             jev_model: "unused".to_string(),
+            route_spec: None,
         },
     ));
     let client = reqwest::Client::new();

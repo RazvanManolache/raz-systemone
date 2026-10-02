@@ -10,6 +10,7 @@ pub mod llm;
 pub mod math;
 pub mod nli;
 pub mod ollama;
+pub mod route;
 pub mod server;
 
 use std::collections::HashMap;

@@ -5,6 +5,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use anyhow::Context;
+
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Json};
@@ -16,7 +18,7 @@ use crate::ollama::OllamaClient;
 use crate::{Answer, AskRequest, Question};
 
 /// Which scorers the server offers.
-pub const SCORERS: &[&str] = &["embed", "llm", "nli", "jev"];
+pub const SCORERS: &[&str] = &["embed", "llm", "nli", "jev", "route"];
 
 pub struct ServerConfig {
     pub port: u16,
@@ -27,6 +29,7 @@ pub struct ServerConfig {
     pub nli_model: String,
     pub jev_api_key: Option<String>,
     pub jev_model: String,
+    pub route_spec: Option<String>,
 }
 
 #[derive(Clone)]
@@ -42,8 +45,11 @@ struct AppStateInner {
     nli_model: String,
     jev_api_key: Option<String>,
     jev_model: String,
+    route_spec: Option<String>,
     /// Loaded lazily on first `nli` request (downloads + mmaps ~90MB).
     nli: OnceCell<crate::nli::NliScorer>,
+    /// Built lazily on first `route` request (may load NLI checkpoints).
+    route: OnceCell<crate::route::DynRouter>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -120,6 +126,10 @@ async fn systemone(
             let s = crate::jev::JevScorer::new(key, st.inner.jev_model.clone());
             crate::evaluate(&s, &ask).await?.answers
         }
+        "route" => {
+            let s = get_route(&st).await?;
+            crate::evaluate(s, &ask).await?.answers
+        }
         other => {
             return Err(AppError {
                 status: StatusCode::BAD_REQUEST,
@@ -131,6 +141,38 @@ async fn systemone(
         model: name,
         answers,
     }))
+}
+
+/// Lazily built, process-lifetime router (spec fixed at startup).
+async fn get_route(st: &AppState) -> Result<&crate::route::DynRouter, AppError> {
+    let spec = st.inner.route_spec.clone().ok_or_else(|| AppError {
+        status: StatusCode::BAD_REQUEST,
+        message: "route scorer needs --route choice=<s>,score=<s>,noul=<s>".to_string(),
+    })?;
+    st.inner
+        .route
+        .get_or_try_init(|| {
+            let inner = st.inner.clone();
+            async move {
+                tokio::task::spawn_blocking(move || {
+                    let spec = crate::route::parse_route_spec(&spec)?;
+                    crate::route::Backends {
+                        ollama: inner.ollama.clone(),
+                        embed_model: inner.embed_model.clone(),
+                        llm_model: inner.llm_model.clone(),
+                        nli_model: inner.nli_model.clone(),
+                        jev_api_key: inner.jev_api_key.clone(),
+                        jev_model: inner.jev_model.clone(),
+                        temperature: 0.1,
+                    }
+                    .build_router(&spec)
+                })
+                .await
+                .map_err(|e| anyhow::anyhow!("route build panicked: {e}"))?
+            }
+        })
+        .await
+        .map_err(AppError::from)
 }
 
 /// Lazily loaded, process-lifetime NLI scorer shared by `nli`/`ensemble`.
@@ -162,6 +204,7 @@ async fn models_list(State(st): State<AppState>) -> Json<serde_json::Value> {
             "llm": st.inner.llm_model,
             "nli": st.inner.nli_model,
             "jev": st.inner.jev_model,
+            "route": st.inner.route_spec,
         },
     }))
 }
@@ -188,7 +231,9 @@ pub async fn serve_on(
             nli_model: cfg.nli_model,
             jev_api_key: cfg.jev_api_key,
             jev_model: cfg.jev_model,
+            route_spec: cfg.route_spec,
             nli: OnceCell::new(),
+            route: OnceCell::new(),
         }),
     };
     axum::serve(listener, router(state)).await?;
@@ -197,6 +242,13 @@ pub async fn serve_on(
 
 /// Bind 127.0.0.1:`port` and serve forever.
 pub async fn serve(cfg: ServerConfig) -> anyhow::Result<()> {
+    if cfg.default_scorer == "route" {
+        let spec = cfg
+            .route_spec
+            .as_deref()
+            .context("default --scorer route needs --route choice=<s>,score=<s>,noul=<s>")?;
+        crate::route::parse_route_spec(spec).context("invalid --route spec")?;
+    }
     let listener = tokio::net::TcpListener::bind(format!("127.0.0.1:{}", cfg.port)).await?;
     eprintln!("raz listening on http://127.0.0.1:{}", cfg.port);
     serve_on(listener, cfg).await

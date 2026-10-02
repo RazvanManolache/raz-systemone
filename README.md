@@ -88,11 +88,13 @@ Backend flags (all subcommands):
 | `--nli-model` | `cross-encoder/nli-deberta-v3-xsmall` | `nli` (HF id or local dir) |
 | `--jev-model` | `jev-latest` | `jev` (key from `TYPESAFE_API_KEY` or `.env`) |
 | `--temperature` | 0.1 | `embed` (softmax over cosine scores) |
+| `--route` | — (required for `route`) | `route` spec `choice=<s>,score=<s>,noul=<s>` |
 
 ## HTTP API
 
 `POST /v1/systemone` (path kept Jev-compatible). Body: `state`, optional
-`model` (one of `embed|llm|nli|jev`, else the server default), and
+`model` (one of `embed|llm|nli|jev|route`, else the server default; `route`
+uses the server's `--route` spec), and
 `questions`. Response: `{"model": ..., "answers": {...}}`.
 
 `GET /v1/models` → `{"default": ..., "scorers": [...], "backends": {...}}`.
@@ -139,6 +141,11 @@ Answers (untagged `type` field tells them apart):
   HF id or a local dir — stock or our finetuned checkpoints.
 - `jev`: the real TypeSafe API as a reference scorer. Key from
   `TYPESAFE_API_KEY` or `.env`.
+- `route`: per-question-type router — each of choice/score/noul answered
+  by its own scorer (e.g. `--route choice=nli:./v7,score=jev,noul=nli:./v5`).
+  Best measured combo (choice→v7, score→jev, noul→v5) beats every single
+  scorer; see Showdown. Each leg is `name[:model]`; a bare name reuses the
+  backend defaults.
 
 ## Checkpoints
 
@@ -186,7 +193,8 @@ llm-3B ~160ms, jev-api ~370ms, NLI ~1.7s (per-process model load) /
 
 | model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro |
 |---|---|---|---|---|---|---|---|
-| jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | **.897** |
+| route (choice→v7, score→jev, noul→v5) | hybrid | .950 | .933 | .900 | .893 | .897 | **.915** |
+| jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | .897 |
 | v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 |
 | v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 |
 | v9 (ours, xsmall + Open-Jev) | 71M | .883 | .800 | .900 | .964 | .862 | .882 |
@@ -199,11 +207,16 @@ llm-3B ~160ms, jev-api ~370ms, NLI ~1.7s (per-process model load) /
 | base xsmall (zero-shot) | 71M | .400 | .433 | .333 | .679 | .483 | .466 |
 | qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 |
 
-Jev still leads overall, but our 71M v5/v9 beat it on E and F (v9 takes
-F to .964) and trail by ~.01 macro — while beating the 14B phi4 judge on
-every split. Choice is essentially solved (several perfect 1.00s);
-frustration tone is the remaining gap. External references (qyvos,
-shreyanbr-gold) confirm the pattern: everyone wins at home, nobody
+The per-type router leads overall (.915 macro, 163/177 pooled): choice→v7
+(54/57), score→jev (54/60), noul→v5 (55/60) — each leg the measured best
+of 14 models at its job. The per-split oracle (best model per split×type)
+is .949 pooled, so most of the headroom is captured. Caveat: the routing
+was picked on these same splits, so the true edge is likely a bit smaller;
+it needs a fresh holdout to confirm. Below the router, Jev leads single
+models, but our 71M v5/v9 beat it on E and F (v9 takes F to .964) and beat
+the 14B phi4 judge on every split. Choice is essentially solved (several
+perfect 1.00s); frustration tone is the remaining gap. External references
+(qyvos, shreyanbr-gold) confirm the pattern: everyone wins at home, nobody
 travels — except v9, which also beats Qyvos on Open-Jev's own test
 (.846 vs .831; see [training/README.md](training/README.md)).
 

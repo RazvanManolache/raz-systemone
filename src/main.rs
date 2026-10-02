@@ -38,6 +38,10 @@ struct BackendArgs {
     /// Softmax temperature over cosine scores (embed scorer).
     #[arg(long, default_value = "0.1")]
     temperature: f64,
+    /// Route spec for `--scorer route`: `choice=<s>,score=<s>,noul=<s>`,
+    /// each `<s>` a scorer with optional model (`nli:./v7`, `llm:phi4`).
+    #[arg(long)]
+    route: Option<String>,
 }
 
 #[derive(Debug, clap::Subcommand)]
@@ -95,6 +99,7 @@ enum ScorerKind {
     Llm,
     Nli,
     Jev,
+    Route,
 }
 
 impl ScorerKind {
@@ -104,6 +109,7 @@ impl ScorerKind {
             ScorerKind::Llm => "llm",
             ScorerKind::Nli => "nli",
             ScorerKind::Jev => "jev",
+            ScorerKind::Route => "route",
         }
     }
 }
@@ -149,6 +155,7 @@ async fn main() -> Result<()> {
                 nli_model: backend.nli_model,
                 jev_api_key: raz::jev::read_api_key().ok(),
                 jev_model: backend.jev_model,
+                route_spec: backend.route,
             })
             .await
         }
@@ -184,6 +191,19 @@ enum EvalScorer {
     Llm(raz::llm::LlmJudge),
     Nli(raz::nli::NliScorer),
     Jev(raz::jev::JevScorer),
+    Route(raz::route::DynRouter),
+}
+
+fn backends_of(backend: &BackendArgs) -> raz::route::Backends {
+    raz::route::Backends {
+        ollama: OllamaClient::new(backend.ollama_url.clone()),
+        embed_model: backend.embed_model.clone(),
+        llm_model: backend.llm_model.clone(),
+        nli_model: backend.nli_model.clone(),
+        jev_api_key: raz::jev::read_api_key().ok(),
+        jev_model: backend.jev_model.clone(),
+        temperature: backend.temperature,
+    }
 }
 
 impl EvalScorer {
@@ -203,6 +223,14 @@ impl EvalScorer {
             ScorerKind::Jev => Ok(Self::Jev(raz::jev::JevScorer::from_env(
                 backend.jev_model.clone(),
             )?)),
+            ScorerKind::Route => {
+                let spec = backend
+                    .route
+                    .as_deref()
+                    .context("--scorer route needs --route choice=<s>,score=<s>,noul=<s>")?;
+                let spec = raz::route::parse_route_spec(spec)?;
+                Ok(Self::Route(backends_of(backend).build_router(&spec)?))
+            }
         }
     }
 }
@@ -218,6 +246,7 @@ impl raz::Scorer for EvalScorer {
             Self::Llm(s) => s.answer(state, question).await,
             Self::Nli(s) => s.answer(state, question).await,
             Self::Jev(s) => s.answer(state, question).await,
+            Self::Route(s) => s.answer(state, question).await,
         }
     }
 }
