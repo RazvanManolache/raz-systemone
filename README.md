@@ -142,10 +142,10 @@ Answers (untagged `type` field tells them apart):
 - `jev`: the real TypeSafe API as a reference scorer. Key from
   `TYPESAFE_API_KEY` or `.env`.
 - `route`: per-question-type router — each of choice/score/noul answered
-  by its own scorer (e.g. `--route choice=nli:./v7,score=jev,noul=nli:./v5`).
-  Best measured combo (choice→v7, score→jev, noul→v5) beats every single
-  scorer; see Showdown. Each leg is `name[:model]`; a bare name reuses the
-  backend defaults.
+  by its own scorer (e.g. `--route choice=nli:./v7,score=nli:./v7,noul=nli:./v9`).
+  Best measured Jev-free combo beats every single model including the Jev API;
+  see Scoreboard. Each leg is `name[:model]`; a bare name reuses the backend
+  defaults.
 
 ## Checkpoints
 
@@ -169,7 +169,7 @@ holdouts were quarantined before any training run.
 
 | model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro | OJ-900 |
 |---|---|---|---|---|---|---|---|---|
-| route (choice→v7, score→jev, noul→v5) | hybrid | .950 | .933 | .900 | .893 | .897 | **.915** | — |
+| route (choice→v7, score→v7, noul→v9) | ours | .950 | .900 | .867 | .893 | .897 | **.901** | — |
 | jev (API reference) | cloud | .933 | .933 | .867 | .857 | .897 | .897 | .811 |
 | v7 (ours, base) | 184M | .983 | .867 | .833 | .857 | .897 | .887 | .474 |
 | v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 | .432 |
@@ -186,13 +186,15 @@ holdouts were quarantined before any training run.
 | qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 | .831 |
 | base-base (zero-shot) | 184M | .383 | .400 | .167 | .679 | .517 | .429 | .490 |
 
-The per-type router leads (.915 macro, 163/177 pooled): choice→v7 (54/57),
-score→jev (54/60), noul→v5 (55/60). The per-split oracle is .949 pooled,
-so most headroom is captured — but the routing was picked on these same
-splits, so the true edge is likely smaller until a fresh holdout confirms
-it. Below the router, Jev leads single models on our labels while our 71M
-v5/v9 beat it on E and F (v9 takes F to .964) and beat the 14B phi4 judge
-on every split. Choice is essentially solved; frustration tone is the gap
+The per-type router leads (.901 macro, 161/177 pooled) using only our own
+checkpoints — choice→v7 (54/57), score→v7 (52/60), noul→v9 (55/60), each
+the best Jev-free model at its job. (A Jev leg would add +.014 — score→jev
+is 54/60 — but Jev is who we're beating.) The Jev-free per-split oracle is
+.938 pooled, so most headroom is captured — but the routing was picked on
+these same splits, so the true edge is likely smaller until a fresh holdout
+confirms it. Below the router, Jev leads single models on our labels while
+our 71M v5/v9 beat it on E and F (v9 takes F to .964) and beat the 14B phi4
+judge on every split. Choice is essentially solved; frustration tone is the gap
 (Jev still leads score .89 vs next-best .87). On Open-Jev's own turf, our
 v9 beats both the Jev API (.846 vs .811) and the official Qyvos (.831) —
 the only model bilingual in both distributions. v10's soft-CE (1 epoch)
