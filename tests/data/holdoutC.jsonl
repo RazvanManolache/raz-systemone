@@ -1,0 +1,20 @@
+{"id":"t51","state":"I want to change from monthly to annual billing.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t52","state":"How much would it cost to add 5 more seats?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t53","state":"We were charged for seats we removed last month.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t54","state":"Can I get a quote for the enterprise plan?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t55","state":"The invoice shows the wrong company name. Can you fix and resend?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t56","state":"Do you offer volume discounts for 100+ users?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t57","state":"I paid but my account still shows as delinquent.","department":"billing","frustration":1,"is_urgent":true}
+{"id":"t58","state":"What's the difference between the Pro and Business plans?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t59","state":"You charged my old card even though I updated it weeks ago.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t60","state":"Is the annual plan cheaper than paying monthly?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t61","state":"Hey, quick issue: the search seems slow today.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t62","state":"Hey, the search has been slow all week and it's getting annoying.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t63","state":"Small bug: the date picker shows the wrong month.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t64","state":"The date picker is wrong AGAIN. This keeps happening.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t65","state":"Could you please look into the export feature when you have a moment?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t66","state":"I've asked about the export feature twice already with no response.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t67","state":"Not a big deal, but the logo on the invoice is outdated.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t68","state":"This is the second wrong invoice this quarter. Please be more careful.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t69","state":"Thanks for the fast reply! One more question: does SSO work on mobile?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t70","state":"Your reply didn't answer my question at all. Let me ask again: does SSO work on mobile?","department":"technical","frustration":1,"is_urgent":false}

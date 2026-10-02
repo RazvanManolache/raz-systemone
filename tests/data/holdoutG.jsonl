@@ -1,0 +1,10 @@
+{"id":"t181","state":"Where do I find the data export option?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t182","state":"The data export option vanished after the update. Great.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t183","state":"OUTRAGED. My private data was shared WITHOUT my consent!!","department":"technical","frustration":2,"is_urgent":true}
+{"id":"t184","state":"Is my data shared with third parties? Just checking.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t185","state":"Meh. The new design is fine, I guess. Whatever.","frustration":0,"is_urgent":false}
+{"id":"t186","state":"The new design is awful and nobody asked for it.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t187","state":"DISGUSTED by the hidden fees. NEVER using this again!!","department":"billing","frustration":2,"is_urgent":false}
+{"id":"t188","state":"Are there any fees I should know about before upgrading?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t189","state":"Sigh. Third login reset email that never arrived.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t190","state":"Perfect, the reset email arrived. All sorted now, thanks!","department":"technical","frustration":0,"is_urgent":false}

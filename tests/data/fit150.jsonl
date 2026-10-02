@@ -1,0 +1,110 @@
+{"id":"t01","state":"Hi, I've been trying to connect my Stripe account for 3 days and the integration keeps failing. I'm losing sales. Please help ASAP.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t02","state":"There is no urgency here. Take your time, no rush at all, just get back to me whenever convenient.","frustration":0,"is_urgent":false}
+{"id":"t03","state":"This is NOT urgent. Just a routine question for whenever you get a chance.","frustration":0,"is_urgent":false}
+{"id":"t04","state":"What are your pricing plans for next quarter? No hurry on the reply.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t05","state":"My invoice was wrong last month but billing already fixed it. Now I need help because the API integration keeps timing out.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t06","state":"This is not a bug report. I just want to ask about pricing tiers for opening a new account.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t07","state":"Thanks so much, everything works great now! Really appreciate the quick help.","frustration":0,"is_urgent":false}
+{"id":"t08","state":"I am extremely furious. This is completely unacceptable. Fix it NOW or I am leaving!","frustration":2,"is_urgent":true}
+{"id":"t09","state":"I was charged twice for my subscription this month. Please refund the duplicate charge.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t10","state":"YOUR BILLING IS A SCAM. You charged me $500 three times and nobody replies!! I want my money back TODAY.","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t11","state":"Hi, do you offer discounts for nonprofits? We're comparing options for next year.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t12","state":"The mobile app crashes every time I open the settings page. I'm on iOS 18.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t13","state":"The mobile app crashes every time and I've already reinstalled twice. This is ridiculous.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t14","state":"URGENT: our production server is down and customers can't check out. Need help immediately.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t15","state":"Just wanted to say the new dashboard looks amazing. Great work team!","frustration":0,"is_urgent":false}
+{"id":"t16","state":"Not urgent at all, but when you get a chance: is there an API rate limit on the free tier?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t17","state":"This isn't a complaint, I love the product! Quick question about upgrading my plan.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t18","state":"Don't send this to billing, my payment is fine. The webhook deliveries are failing.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t19","state":"It's not that the feature is broken, I just don't understand how to configure SSO.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t20","state":"We've been waiting 2 weeks for our refund. This is unacceptable.","department":"billing","frustration":1,"is_urgent":true}
+{"id":"t21","state":"Can someone please call me back today? My account is locked and I can't process payroll.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t22","state":"No rush, just wondering if you have a status page for outages.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t23","state":"I'm furious about the surprise price increase. Nobody told us it was coming.","department":"sales","frustration":2,"is_urgent":false}
+{"id":"t24","state":"Please cancel my account immediately and confirm the cancellation.","department":"billing","frustration":0,"is_urgent":true}
+{"id":"t25","state":"The export button doesn't do anything when I click it. No error, just nothing.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t26","state":"Why was I billed $49 twice? I only have one account.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t27","state":"I need an invoice for last quarter for my taxes. Where can I download it?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t28","state":"Cancel my subscription NOW. I've asked three times already and you're still charging me!!","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t29","state":"My card expired; I updated it but the payment still shows as failed.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t30","state":"You overcharged me by $200 and I demand to speak to a manager immediately.","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t31","state":"We're evaluating you against two competitors. Can you send enterprise pricing?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t32","state":"Is there a free trial? I want to test before committing.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t33","state":"I want to upgrade to annual billing to get the discount.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t34","state":"Do you have a startup program? We just raised our seed round.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t35","state":"The API returns 500 errors on every request since this morning. Our app is down.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t36","state":"Password reset emails never arrive. I've checked spam.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t37","state":"Your latest update broke our SSO login. This needs to be fixed ASAP, nobody can work.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t38","state":"How do I export my data? I can't find the button.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t39","state":"The reports are showing wrong numbers. Not a huge deal but please look into it.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t40","state":"This is the third outage this month. We're starting to look at alternatives.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t41","state":"Webhooks are delayed by 3 hours. Is there an incident?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t42","state":"Nothing works. The site won't load, the app crashes, I can't even open a ticket properly. HORRIBLE.","department":"technical","frustration":2,"is_urgent":true}
+{"id":"t43","state":"Great, another outage. Just fantastic. Really love paying for this.","department":"technical","frustration":2,"is_urgent":false}
+{"id":"t44","state":"Never mind, I figured it out myself. Please close this ticket.","frustration":0,"is_urgent":false}
+{"id":"t45","state":"Hello? Is anyone there? I've been waiting an hour for a reply.","frustration":1,"is_urgent":true}
+{"id":"t46","state":"STOP EMAILING ME. I unsubscribed five times already!!","frustration":2,"is_urgent":false}
+{"id":"t47","state":"Thank you for fixing this so quickly, you're a lifesaver!","frustration":0,"is_urgent":false}
+{"id":"t48","state":"Reminder: our contract renews next month. Let's schedule a call to discuss terms.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t49","state":"I'm not angry, just disappointed. The support has been slow lately.","frustration":1,"is_urgent":false}
+{"id":"t50","state":"HELP!!! Everything is broken and my boss is going to kill me!!!","frustration":2,"is_urgent":true}
+{"id":"t71","state":"I need to change the credit card on file before Friday or our service gets suspended.","department":"billing","frustration":1,"is_urgent":true}
+{"id":"t72","state":"Your service has been down all morning. This is costing us real money.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t73","state":"Quick question: can I export invoices as PDF?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t74","state":"ABSOLUTELY UNACCEPTABLE. Third time my data was lost!! I'm reporting you everywhere!","department":"technical","frustration":2,"is_urgent":false}
+{"id":"t75","state":"We're a school. Do you offer education pricing?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t76","state":"The checkout page shows an error for every customer since yesterday.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t77","state":"Please delete all my data and close my account today.","department":"billing","frustration":0,"is_urgent":true}
+{"id":"t78","state":"Loving the new mobile app! Just one tiny request: dark mode please?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t79","state":"Your invoice charged us in USD instead of EUR as agreed.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t80","state":"I can't log in and my presentation starts in 10 minutes!!","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t81","state":"Not complaining, but the new pricing is confusing compared to before.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t82","state":"Our team can't access shared files. This is blocking all work.","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t83","state":"When does my trial end? I don't want to be charged.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t84","state":"The support agent was rude and hung up on me. I want an apology.","frustration":1,"is_urgent":false}
+{"id":"t85","state":"Does your platform support HIPAA compliance? We handle patient data.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t86","state":"Invoices are missing for March and April. I need them for an audit next week.","department":"billing","frustration":0,"is_urgent":true}
+{"id":"t87","state":"Why is everything so slow today?? I can barely get anything done!","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t88","state":"Cancel immediately. Worst service I've ever used. Goodbye.","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t89","state":"Just checking: will my data be migrated automatically on upgrade?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t90","state":"We detected unknown charges from your company on our corporate card.","department":"billing","frustration":1,"is_urgent":true}
+{"id":"t101","state":"What does the enterprise plan cost per seat?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t102","state":"You charged my card twice for the same invoice.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t103","state":"Is there a free trial before I commit to anything?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t104","state":"My receipt shows the wrong company name. Can you fix it?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t105","state":"The quote you sent expires today and I still have questions.","department":"sales","frustration":0,"is_urgent":true}
+{"id":"t106","state":"I've asked three times for a refund and nobody replies.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t107","state":"Do I pay extra for additional team members?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t108","state":"Your billing page won't load so I can't update my card.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t109","state":"We'd like to upgrade but the price page is unclear about overages.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t110","state":"Stop charging me! I canceled last month and you billed me again!","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t111","state":"Can I get a copy of last year's invoices for my accountant?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t112","state":"How do volume discounts work if we add 50 seats mid-year?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t113","state":"The payment failed but my bank says the money left my account.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t114","state":"Your competitor offers the same features for half the price. Why should I stay?","department":"sales","frustration":1,"is_urgent":false}
+{"id":"t115","state":"I was charged full price even though I applied a coupon code.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t116","state":"Does the trial include all features or just the basic ones?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t117","state":"Nobody told me the plan renews automatically. This feels dishonest.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t118","state":"Can we get a demo of the reporting tools before we decide?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t119","state":"My subscription says active but every feature is locked.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t120","state":"Please confirm my cancellation went through. I don't trust the website.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t131","state":"Hi, could you tell me where to find my past invoices?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t132","state":"I've been looking everywhere for my past invoices. Where are they?","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t133","state":"The export button doesn't seem to work on my end.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t134","state":"The export button still doesn't work. This is getting frustrating.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t135","state":"Just wondering if there's an update on my refund request.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t136","state":"I'm still waiting on my refund request with no update at all.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t137","state":"UNBELIEVABLE. You deleted my account WITH all my data and NOBODY warned me!!","department":"billing","frustration":2,"is_urgent":false}
+{"id":"t138","state":"I've had it with this garbage. NOTHING works and support is USELESS. Done.","department":"technical","frustration":2,"is_urgent":false}
+{"id":"t139","state":"No rush at all, but could you look at my invoice when you get a chance?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t140","state":"Whenever you get a moment, the dashboard shows old numbers.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t141","state":"Please reply by Thursday so I can include this in my report.","frustration":0,"is_urgent":true}
+{"id":"t142","state":"As mentioned twice already, the deadline is tomorrow morning.","frustration":1,"is_urgent":true}
+{"id":"t143","state":"URGENT!!! ...just kidding, take your time. Love the product btw.","frustration":0,"is_urgent":false}
+{"id":"t144","state":"!!! The server room is flooding and your hardware is in it !!!","department":"technical","frustration":1,"is_urgent":true}
+{"id":"t145","state":"Small suggestion: the settings page could use a search box.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t146","state":"The settings page is a maze. Finding anything takes forever.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t147","state":"PATHETIC. Three outages this week and zero communication. Switching vendors Monday.","department":"technical","frustration":2,"is_urgent":true}
+{"id":"t148","state":"Thanks for the quick fix yesterday! One more thing: the logo looks blurry.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t149","state":"Another day, another bug. Do you people ever test anything?","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t150","state":"You people are INCOMPETENT. I want my money back AND an apology. NOW.","department":"billing","frustration":2,"is_urgent":true}

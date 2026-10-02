@@ -1,0 +1,8 @@
+/target
+.env
+/out.jsonl
+*.log
+.DS_Store
+training/.venv/
+training/__pycache__/
+training/runs/

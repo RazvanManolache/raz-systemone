@@ -1,0 +1,10 @@
+{"id":"t151","state":"Could you point me to the invoice history page?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t152","state":"Why is it so hard to find the invoice history page?","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t153","state":"The mobile app crashes whenever I open it!!","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t154","state":"I DEMAND a full refund for this DISASTER of a service!!","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t155","state":"Take your time, just flagging that the font size changed.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t156","state":"This needs to be resolved before our launch on Friday.","frustration":0,"is_urgent":true}
+{"id":"t157","state":"Seriously? The same error AGAIN? Fix your software.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t158","state":"Your help pages answered everything. Just saying thanks!","frustration":0,"is_urgent":false}
+{"id":"t159","state":"WORST. COMPANY. EVER. Charging me for a service that never worked!!","department":"billing","frustration":2,"is_urgent":false}
+{"id":"t160","state":"Heads up, our renewal date moved to the 1st. No action needed.","department":"billing","frustration":0,"is_urgent":false}

@@ -1,0 +1,10 @@
+{"id":"t121","state":"How much would it cost to add single sign-on to our plan?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t122","state":"I paid yesterday and my account still shows past due.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t123","state":"Is the annual discount still available if I upgrade mid-cycle?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t124","state":"You keep sending my invoices to an old email I removed months ago.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t125","state":"The pricing calculator gave me a different number than the checkout.","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t126","state":"This is the second time I've been billed after canceling. Unacceptable.","department":"billing","frustration":1,"is_urgent":false}
+{"id":"t127","state":"Do students get a discount on the pro plan?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t128","state":"My finance team needs a proper VAT invoice, not just a receipt.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t129","state":"I almost bought the wrong tier because the plan names are so similar.","department":"sales","frustration":1,"is_urgent":false}
+{"id":"t130","state":"Charged for two seats but I'm the only user. Please fix.","department":"billing","frustration":0,"is_urgent":false}

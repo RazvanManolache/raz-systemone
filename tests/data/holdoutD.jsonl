@@ -1,0 +1,10 @@
+{"id":"t91","state":"Can I pause my subscription for two months instead of canceling?","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t92","state":"The API docs say v2 but the endpoint returns v1 responses. Which is right?","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t93","state":"I've been overcharged EVERY SINGLE MONTH and support ignores me. FIX THIS NOW.","department":"billing","frustration":2,"is_urgent":true}
+{"id":"t94","state":"Are there any discounts for annual payment?","department":"sales","frustration":0,"is_urgent":false}
+{"id":"t95","state":"The app deleted my entire project. Years of work GONE. I am beyond furious!!","department":"technical","frustration":2,"is_urgent":true}
+{"id":"t96","state":"No problems here, just wanted to ask about SSO options for my team.","department":"technical","frustration":0,"is_urgent":false}
+{"id":"t97","state":"Please update our billing email to finance@company.com.","department":"billing","frustration":0,"is_urgent":false}
+{"id":"t98","state":"My trial expires tomorrow and I still can't decide. Can someone call me?","department":"sales","frustration":0,"is_urgent":true}
+{"id":"t99","state":"The new update moved everything around and I hate it. Change it back.","department":"technical","frustration":1,"is_urgent":false}
+{"id":"t100","state":"Reminder that our invoice is 30 days overdue on YOUR end, we already paid!","department":"billing","frustration":1,"is_urgent":false}
