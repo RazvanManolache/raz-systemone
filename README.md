@@ -165,9 +165,10 @@ raz ask --state-file examples/state.txt --questions examples/questions.json --sc
 
 ## Scoreboard (every model on the same unseen splits; macro = mean of C–G)
 
-OJ-900 = accuracy on a fixed 900-row Open-Jev test sample (— where the
-model can't run that harness: LLM judges need fixed label sets). All
-holdouts were quarantined before any training run.
+OJ-900 = accuracy on a fixed 900-row Open-Jev test sample (LLM judges via
+the same letter-label logprob harness as `llm.rs`, verified bit-identical
+on cross-check rows; only `route` can't run it — its legs are our-3-question
+specialists). All holdouts were quarantined before any training run.
 
 | model | size | C 60 | D 30 | E 30 | F 28 | G 29 | macro | OJ-900 |
 |---|---|---|---|---|---|---|---|---|
@@ -177,12 +178,12 @@ holdouts were quarantined before any training run.
 | v5 (ours, xsmall) | 71M | .900 | .833 | .900 | .893 | .897 | .885 | .432 |
 | v9 (ours, xsmall + Open-Jev) | 71M | .883 | .800 | .900 | .964 | .862 | .882 | **.846** |
 | v11 (ours, v9 + shreyanbr pairs) | 71M | .917 | .833 | .867 | .857 | .828 | .860 | .829 |
-| phi4-abliterated (LLM judge) | 14B | .883 | .833 | .867 | .821 | .862 | .853 | — |
-| mistral-nemo (LLM judge) | 12B | .683 | .700 | .633 | .679 | .759 | .687 | — |
+| phi4-abliterated (LLM judge) | 14B | .883 | .833 | .867 | .821 | .862 | .853 | .527 |
+| mistral-nemo (LLM judge) | 12B | .683 | .700 | .633 | .679 | .759 | .687 | .473 |
 | v10 (ours, soft-CE, 1 epoch) | 71M | .717 | .633 | .533 | .714 | .552 | .630 | .782 |
-| judge-3b-4k (LLM judge) | 3B | .533 | .667 | .500 | .679 | .690 | .614 | — |
+| judge-3b-4k (LLM judge) | 3B | .533 | .667 | .500 | .679 | .690 | .614 | .397 |
 | shreyanbr-gold (external xsmall) | 71M | .600 | .567 | .600 | .571 | .586 | .585 | .343 |
-| embed (nomic) | — | .500 | .467 | .533 | .500 | .517 | .503 | — |
+| embed (nomic) | — | .500 | .467 | .533 | .500 | .517 | .503 | .263 |
 | moritz (DeBERTa-mnli-fever-anli) | 184M | .417 | .467 | .333 | .714 | .483 | .483 | .563 |
 | base xsmall (zero-shot) | 71M | .400 | .433 | .333 | .679 | .483 | .466 | .370 |
 | qyvos (official open Jev) | 144M | .467 | .400 | .600 | .464 | .241 | .434 | .831 |
