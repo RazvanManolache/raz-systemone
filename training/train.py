@@ -94,6 +94,7 @@ def main():
         learning_rate=args.lr,
         weight_decay=0.01,
         warmup_steps=100,
+        train_sampling_strategy="group_by_length",
         bf16=torch.cuda.is_available(),
         seed=args.seed,
         logging_steps=50,
