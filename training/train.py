@@ -50,6 +50,9 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--max-len", type=int, default=256)
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--resume", action="store_true",
+                    help="resume from latest checkpoint in --out (survives kills)")
+    ap.add_argument("--save-steps", type=int, default=1000)
     args = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(args.base, use_fast=True)
@@ -85,7 +88,8 @@ def main():
     targs = TrainingArguments(
         output_dir=args.out,
         eval_strategy="epoch",
-        save_strategy="epoch",
+        save_strategy="steps",
+        save_steps=args.save_steps,
         load_best_model_at_end=True,
         metric_for_best_model="accuracy",
         num_train_epochs=args.epochs,
@@ -105,7 +109,7 @@ def main():
     trainer = Trainer(model=model, args=targs, train_dataset=train_ds,
                       eval_dataset=eval_ds, compute_metrics=metrics,
                       data_collator=collator)
-    trainer.train()
+    trainer.train(resume_from_checkpoint=True if args.resume else None)
     print("final eval:", trainer.evaluate())
     model.save_pretrained(args.out, safe_serialization=True)
     tok.save_pretrained(args.out)
