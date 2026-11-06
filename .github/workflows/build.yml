@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: never
+
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -35,6 +38,19 @@ jobs:
         run: cargo build --locked --release
       - name: Smoke test executable
         run: ./target/release/${{ matrix.executable }} --help
+      - name: Verify Windows runtime linkage
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $dumpbin = & $vswhere -latest -products '*' -find 'VC/Tools/MSVC/**/bin/Hostx64/x64/dumpbin.exe'
+          if (!$dumpbin) { throw 'Cannot locate the Windows binary inspection tool.' }
+          $dependencies = & $dumpbin /dependents target/release/raz.exe
+          if ($LASTEXITCODE) { throw 'Cannot inspect Windows runtime dependencies.' }
+          $dependencies | Write-Output
+          if ($dependencies -match '(?i)(VCRUNTIME|MSVCP|MSVCR|ucrtbase|api-ms-win-crt).*\.dll') {
+            throw 'The portable Windows binary unexpectedly depends on a dynamic C/C++ runtime.'
+          }
       - name: Package binary, examples and documentation
         shell: pwsh
         env:

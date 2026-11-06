@@ -1,0 +1,4 @@
+# esaxx-rs (used by tokenizers) builds its C++ library with the static MSVC CRT.
+# Match that runtime throughout the Windows binary instead of mixing /MT and /MD.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
