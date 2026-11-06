@@ -1,5 +1,11 @@
 # Raz SystemOne
 
+## Build on GitHub
+
+Open [Actions](https://github.com/RazvanManolache/raz-systemone/actions/workflows/build.yml), choose **Run workflow**, and select the branch. Builds also run on pushes and pull requests. Open a successful run and download its **Artifacts** (GitHub sign-in required; retained for 30 days).
+
+Choose the Windows x64 ZIP or Linux x64 tar.gz. Each includes the executable, examples, README, license, source commit and SHA-256 checksums. Linux builds target Ubuntu 24.04. CI runs the offline tests and CLI help smoke test; model weights and services such as Ollama are separate prerequisites. Existing live integration tests remain opt-in.
+
 Raz (`raz`) gives **probabilities for answers, not text**. Send a state plus
 typed questions — `choice` (pick one), `score` (pick a rubric level), `noul`
 (probability a statement holds) — and get back a calibrated distribution per

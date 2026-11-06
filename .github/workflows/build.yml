@@ -1,0 +1,68 @@
+name: Build binaries
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            platform: windows-x64
+            executable: raz.exe
+          - os: ubuntu-24.04
+            platform: linux-x64
+            executable: raz
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run offline tests
+        run: cargo test --locked --release
+      - name: Build release executable
+        run: cargo build --locked --release
+      - name: Smoke test executable
+        run: ./target/release/${{ matrix.executable }} --help
+      - name: Package binary, examples and documentation
+        shell: pwsh
+        env:
+          BUILD_PLATFORM: ${{ matrix.platform }}
+          BUILD_EXECUTABLE: ${{ matrix.executable }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $name = "raz-$env:BUILD_PLATFORM"
+          $stage = "dist/$name"
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          Copy-Item "target/release/$env:BUILD_EXECUTABLE", README.md, LICENSE -Destination $stage
+          Copy-Item examples -Destination $stage -Recurse
+          $env:GITHUB_SHA | Set-Content "$stage/BUILD-COMMIT.txt"
+          if ($IsWindows) {
+            $archive = "$name.zip"
+            Compress-Archive -Path $stage -DestinationPath "dist/$archive"
+          } else {
+            $archive = "$name.tar.gz"
+            tar -czf "dist/$archive" -C dist $name
+            if ($LASTEXITCODE) { throw 'Archive creation failed.' }
+          }
+          "$( (Get-FileHash "dist/$archive" -Algorithm SHA256).Hash.ToLowerInvariant() )  $archive" | Set-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: raz-${{ matrix.platform }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
